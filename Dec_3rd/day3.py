@@ -23,7 +23,7 @@ class Day3(TestCase):
         total = sum([int(match.group(1)) * int(match.group(2)) for match in re.finditer(pattern_mul, data) if
                      max([0] + [do for do in dos if do < match.start()]) >
                      max([-1] + [dont for dont in donts if dont < match.start()])])
-        print(total)
+        print(total) # not correct
 
     def test_day3_part2_2ndtry(self):
         pattern_mul = r"mul\((\d{1,3}),(\d{1,3})\)"
@@ -38,7 +38,7 @@ class Day3(TestCase):
             dont = match.group("dont")
             a = match.group("a")
             b = match.group("b")
-
+            # idk how to do xor with n truthy/falsy variables in python
             if (do and dont) or (do and a) or (dont and a):
                 continue
             if match.group("dont"):
@@ -48,6 +48,6 @@ class Day3(TestCase):
                 flag = True
                 continue
             if flag:
-                total += int(match.group("a") * int(match.group("b")))
+                total += int(a) * int(b)
 
         print(total)
