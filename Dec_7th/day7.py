@@ -17,6 +17,8 @@ class Formula:
                 result += self.numbers[i]
             elif op == "*":
                 result *= self.numbers[i]
+            elif op == "!":
+                result = int(str(result) + str(self.numbers[i]))
             else:
                 raise ValueError
         return result
@@ -27,7 +29,7 @@ class Equation:
         self.result = result
         self.numbers = numbers
     def get_possible_operator_combos(self) -> List[str]:
-        return list(product(["+", "*"], repeat=len(self.numbers)-1))
+        return list(product(["+", "*", "!"], repeat=len(self.numbers)-1))
     def get_possible_formulas(self) -> List[Formula]:
         return [Formula(numbers=self.numbers, operators=op_list) for op_list in self.get_possible_operator_combos()]
     def is_equation_valid_for_some_op_combo(self) -> bool:
@@ -39,12 +41,12 @@ class Day7(TestCase):
         lines = data.splitlines()
         equations = [Equation(result=int(line.split(":")[0]), numbers=[int(w) for w in line.split(" ")[1:]]) for line in lines]
         total = sum([eq.result for eq in equations if eq.is_equation_valid_for_some_op_combo()])
-        print(f"total {total}")
+        # print(f"total {total}")
 
     def test_day7_part2(self):
-        pass
+        # same code as before, just added the additional operator
+        lines = data.splitlines()
+        equations = [Equation(result=int(line.split(":")[0]), numbers=[int(w) for w in line.split(" ")[1:]]) for line in lines]
+        total = sum([eq.result for eq in equations if eq.is_equation_valid_for_some_op_combo()])
+        print(f"total part2 {total}")
 
-
-if __name__ == "__main__":
-    day7 = Day7()
-    day7.test_day7_part1()
