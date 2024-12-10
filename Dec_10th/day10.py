@@ -44,7 +44,8 @@ class DigitMatrix:
                     else:
                         climb(n)
         climb(starting_point)
-        return list(set(peaks_reachable)) # set: to remove repeated tuples
+        # return list(set(peaks_reachable)) # set: to remove repeated tuples
+        return peaks_reachable
 
     def print(self):
         for row in self.matrix:
@@ -54,6 +55,18 @@ class DigitMatrix:
 class Day10(TestCase):
 
     def test_day10_part_1(self):
+        # map = DigitMatrix(data)
+        # map.print()
+        # print("*************************")
+        # trailheads = map.get_trailheads()
+        # total = sum([len(map.blaze_trails(th)) for th in trailheads])
+        #
+        # print(f"sum of the scores of all trailheads is {total}")
+        pass
+
+
+    def test_day10_part_2(self):
+        # the code is the same as before, i just stopped counting as one the trails that lead to the same destination
         map = DigitMatrix(data)
         map.print()
         print("*************************")
@@ -61,7 +74,3 @@ class Day10(TestCase):
         total = sum([len(map.blaze_trails(th)) for th in trailheads])
 
         print(f"sum of the scores of all trailheads is {total}")
-
-
-    def test_day10_part_2(self):
-        pass
