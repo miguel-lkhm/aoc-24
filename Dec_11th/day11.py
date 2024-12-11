@@ -47,6 +47,8 @@ class StoneRow:
 
 class Day11(TestCase):
     blink_5_map = defaultdict(list)
+    blink_10_map = defaultdict(list)
+    blink_20_map = defaultdict(list)
 
     def has_even_number_of_digits(self, n) -> bool:
         return len(str(n)) % 2 == 0
@@ -84,7 +86,53 @@ class Day11(TestCase):
             for n in numbers:
                 aux.extend(self.blink_5_times(n))
             numbers = aux
-            print(f"Blinked {(x+1)*5} times")
+            #print(f"Blinked {(x+1)*5} times")
+        return numbers
+
+    def blink_10_times(self, n: int) -> List[int]:
+        if n in self.blink_10_map:
+            return self.blink_10_map[n]
+        result_list = self.blink_5n_times([n], 10)
+        self.blink_10_map[n] = result_list
+        return result_list
+
+    def blink_20_times(self, n: int) -> List[int]:
+        if n in self.blink_20_map:
+            return self.blink_20_map[n]
+        result_list = self.blink_5n_times([n], 20)
+        self.blink_20_map[n] = result_list
+        return result_list
+
+    def blink_25_times(self, numbers: List[int]) -> List[int]:
+        aux = list([])
+        for n in numbers:
+            aux.extend(self.blink_10_times(n))
+        numbers = aux
+        aux = list([])
+        for n in numbers:
+            aux.extend(self.blink_10_times(n))
+        numbers = aux
+        aux = list([])
+        for n in numbers:
+            aux.extend(self.blink_5_times(n))
+        numbers = aux
+        
+        return numbers
+
+    def blink_50_times(self, numbers: List[int]) -> List[int]:
+        aux = list([])
+        for n in numbers:
+            aux.extend(self.blink_20_times(n))
+        numbers = aux
+        aux = list([])
+        for n in numbers:
+            aux.extend(self.blink_20_times(n))
+        numbers = aux
+        aux = list([])
+        for n in numbers:
+            aux.extend(self.blink_10_times(n))
+        numbers = aux
+        
         return numbers
 
 
@@ -95,10 +143,15 @@ class Day11(TestCase):
         stone_line.blink_n_times(25)
         print(f"Number of stones: {len(stone_line.stones)}")
 
-    def test_day11_part_1_ver2(self):
+    def _day11_part_1_ver2(self):
         initial_numbers =[int(w) for w in data.split(" ")]
-        result_list = self.blink_5n_times(initial_numbers, 25)
+        result_list = self.blink_5n_times(initial_numbers, 50)
         print(f"Number of stones (version 2): {len(result_list)}")
+
+    def test_day11_part_1_ver3(self):
+        initial_numbers =[int(w) for w in data.split(" ")]
+        result_list = self.blink_50_times(initial_numbers)
+        print(f"Number of stones (version 3): {len(result_list)}")
 
     def _day11_part_2(self):
         initial_numbers = [int(w) for w in data.split(" ")]
