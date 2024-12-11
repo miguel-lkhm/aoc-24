@@ -64,7 +64,7 @@ class Day6(TestCase):
 
         print(f"number of visited positions = {count}")
     
-    def test_day6_part2(self):
+    def test_day6_part2(self): # it still doesnt work
         directions = [(-1, 0), (0, 1), (1, 0), (0, -1)] # up, right, down, left
         dir_names = ["u", "r", "d", "l"]
 
@@ -74,16 +74,12 @@ class Day6(TestCase):
                 current_val = matrix_copy.get_value(current_pos)
                 if dir_names[idx_dir] in current_val: 
                     # if this position has already been traversed in this direction, we found a loop
-                    matrix_copy.print()
-                    print("")
-                    print("*****************************************************************************")
-                    print("")
                     return True
                 else:
                     # mark the position with the direction in which it's just been traversed
                     matrix_copy.set_value(current_pos, current_val + dir_names[idx_dir]) 
 
-                if matrix_copy.get_value(matrix_copy.move_from(current_pos, directions[idx_dir])) == "#":
+                while matrix_copy.get_value(matrix_copy.move_from(current_pos, directions[idx_dir])) == "#":
                     idx_dir = (idx_dir + 1) % 4 # change direction to relative right
 
                 current_pos = matrix_copy.move_from(current_pos, directions[idx_dir])
@@ -99,8 +95,10 @@ class Day6(TestCase):
         current_pos = start
         while M.get_value(current_pos) != "$":
             next_val = M.get_value(M.move_from(current_pos, directions[idx_dir]))
+
             if next_val == "#":
-                idx_dir = (idx_dir + 1) % 4 # change direction to relative right
+                while M.get_value(M.move_from(current_pos, directions[idx_dir])) == "#":
+                    idx_dir = (idx_dir + 1) % 4 # change direction to relative right
             elif next_val != "$":
                 # if the next position is not an obstacle, check if adding one would create a loop
                 M_copy = M.deep_copy()
@@ -113,9 +111,59 @@ class Day6(TestCase):
 
             current_pos = M.move_from(current_pos, directions[idx_dir])
 
+        print(f"number of possible obstacles that lead to loops = {len(set(obstacle_positions))}")
+
+    def test_day6_part2_2ndtry(self): # this one works
+        directions = [(-1, 0), (0, 1), (1, 0), (0, -1)] # up, right, down, left
+        dir_names = ["u", "r", "d", "l"]
+
+        # first find the places through which the guard passes
+        M = CharMatrix(data)
+        start = M.find_first_value("^")
+        assert start is not None
+        path = []
+        idx_dir = 0
+        current_pos = start
+        while M.get_value(current_pos) != "$":
+            path.append(tuple((current_pos[0], current_pos[1])))
+
+            while M.get_value(M.move_from(current_pos, directions[idx_dir])) == "#":
+                idx_dir = (idx_dir + 1) % 4 # change direction to relative right
+
+            current_pos = M.move_from(current_pos, directions[idx_dir])
+
+        points_visited = list(set(path[1:])) # i do not count the starting point
+
+        # try setting up an obstacle in the guard's path
+        obstacle_positions = []
+        for p in points_visited:
+            M_copy = M.deep_copy()
+            M_copy.set_value(p, "#")
+            if self.simulate_guard_path_from_point_in_dir(M_copy, start, 0):
+                obstacle_positions.append(tuple(p))
 
         print(f"number of possible obstacles that lead to loops = {len(set(obstacle_positions))}")
 
+    def simulate_guard_path_from_point_in_dir(self, chm: CharMatrix, starting_point: Tuple[int, int], idx_dir: int) -> bool:
+        directions = [(-1, 0), (0, 1), (1, 0), (0, -1)] # up, right, down, left
+        dir_names = ["u", "r", "d", "l"]
+
+        current_pos = starting_point
+        while chm.get_value(current_pos) != "$":
+            current_val = chm.get_value(current_pos)
+            if dir_names[idx_dir] in current_val: 
+                return True
+            else:
+                # mark the position with the direction in which it's just been traversed
+                chm.set_value(current_pos, current_val + dir_names[idx_dir]) 
+
+            while chm.get_value(chm.move_from(current_pos, directions[idx_dir])) == "#":
+                idx_dir = (idx_dir + 1) % 4 # change direction to relative right
+
+            current_pos = chm.move_from(current_pos, directions[idx_dir])
+        # while-loop ended because the guard exited the matrix, then there's no loop
+        return False
+
 if __name__ == "__main__":
     day6 = Day6()
-    day6.test_day6_part2()
+    day6.test_day6_part2_2ndtry()
