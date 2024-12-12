@@ -65,6 +65,21 @@ class Plot:
         self.number_akin_neighbors = sum([1 if self.value == garden.value_at(garden.move(self.point, dir)) else 0
                                           for dir in garden.directions])
 
+    def is_in_line(self, plot: "Plot") -> bool:
+        if plot.point[0] == self.point[0] or plot.point[1] == self.point[1]:
+            return True
+        return False
+
+    def is_side_plot(self) -> bool:
+        g = self.garden
+        # vertical side
+        if g.value_at(g.move(self.point, g.UP)) == self.value and g.value_at(g.move(self.point, g.DOWN)) == self.value:
+            return True
+        # horizontal side
+        if g.value_at(g.move(self.point, g.RIGHT)) == self.value and g.value_at(g.move(self.point, g.LEFT)) == self.value:
+            return True
+        return False
+
 class Region:
     def __init__(self, plots: List[Plot]):
         self.plots = plots
@@ -73,7 +88,8 @@ class Region:
         return len(self.plots)
 
     def perimeter(self) -> int:
-        return sum([4 - plot.number_akin_neighbors for plot in self.plots])
+        return sum([(4 - plot.number_akin_neighbors) if not plot.is_side_plot() else 0
+                    for plot in self.plots])
 
     def fence_price(self) -> int:
         return self.area() * self.perimeter()
@@ -86,4 +102,6 @@ class Day12(TestCase):
         print(f"Total price of fence {garden.total_fence_price()}")
 
     def test_day12_part2(self):
-        pass
+        # just changed the perimeter method to discount plot in a side
+        garden = Garden(data)
+        print(f"Total price of fence {garden.total_fence_price()}")
