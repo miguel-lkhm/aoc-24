@@ -36,21 +36,22 @@ class Garden(CharMatrix):
         for i in range(self.n):
             for j in range(self.m):
                 if (i, j) not in visited_points:
-                    regions.append(self._traverse_region((i, j)))
-                    visited_points.add((i, j))
+                    new_region = self._traverse_region((i, j))
+                    regions.append(new_region)
+                    visited_points.update([plot.point for plot in new_region.plots])
         return regions
 
     def _traverse_region(self, point: Tuple[int, int]) -> "Region":
-        plots_positions = []
-        plots_positions.append(point)
+        plots_positions = [point]  # List to hold visited positions
+        stack = [point]  # Stack to hold points to be visited
 
-        def visit_neighbors(p: Tuple[int, int]):
-            for n in self.get_neighbours(p):
-                if self.value_at(n) == self.value_at(point):
-                    plots_positions.append(n)
-                    visit_neighbors(n)
+        while stack:  # While there are points to visit
+            p = stack.pop()  # Pop the next point from the stack
+            for n in self.get_neighbours(p):  # Visit neighbors
+                if self.value_at(n) == self.value_at(point) and n not in plots_positions:
+                    plots_positions.append(n)  # Add neighbor to visited positions
+                    stack.append(n)  # Push neighbor to the stack to visit later
 
-        visit_neighbors(point)
         return Region([Plot(pos, self) for pos in plots_positions])
 
     def total_fence_price(self) -> int:
