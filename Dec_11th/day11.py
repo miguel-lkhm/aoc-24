@@ -1,7 +1,7 @@
 from unittest import TestCase
 from typing import List, Tuple, Union
 from data import data
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 class Stone:
     def __init__(self, n: int):
@@ -148,7 +148,7 @@ class Day11(TestCase):
         result_list = self.blink_5n_times(initial_numbers, 50)
         print(f"Number of stones (version 2): {len(result_list)}")
 
-    def test_day11_part_1_ver3(self):
+    def _day11_part_1_ver3(self):
         initial_numbers =[int(w) for w in data.split(" ")]
         result_list = self.blink_50_times(initial_numbers)
         print(f"Number of stones (version 3): {len(result_list)}")
@@ -163,3 +163,88 @@ class Day11(TestCase):
         initial_numbers =[int(w) for w in data.split(" ")]
         result_list = self.blink_5n_times(initial_numbers, 75)
         print(f"Number of stones (version 2): {len(result_list)}")
+
+    def _generators(self):
+        listn = [1, 2, 3, 4, 5]
+
+        def gen(num, iteration: int):
+            if iteration < 5:
+                yield from gen(num*2, iteration=iteration+1)
+                yield from gen(num*3, iteration=iteration+1)
+            else:
+                yield num
+        
+        for x in gen(5, 0):
+            print(x)
+
+    def _day11_part2_ver4(self):
+        initial_numbers =[int(w) for w in data.split(" ")]
+        # max_iteration = 25
+        print("*********************")
+        print("Using generators")
+
+        def gen(num: int, iteration: int):
+            if iteration < 35:
+                if num == 0:
+                    yield from gen(1, iteration=iteration+1)
+                elif len(str(num)) % 2 == 0:
+                    n_str = str(num)
+                    mid_point = int(len(n_str) / 2)
+                    n1, n2 = int(n_str[:mid_point]), int(n_str[mid_point:])
+                    yield from gen(n1, iteration=iteration+1)
+                    yield from gen(n2, iteration=iteration+1)
+                else:
+                    yield from gen(num*2024, iteration=iteration+1)
+            else:
+                yield num
+        
+        count = 0
+        for n in initial_numbers:
+            for x in gen(n, 0):
+                count += 1
+        print(f"total number {count}")
+
+    def test_day11_part2_ver5(self):
+        blink_5_map_dict = defaultdict(dict) # cache
+
+        def blink_5_times(n) -> dict[int, int]:
+            if n in blink_5_map_dict:
+                return blink_5_map_dict[n]
+            new_list = [n]
+            for _ in range(5):
+                aux = list([])
+                for num in new_list:
+                    aux.extend(self.transform(num))
+                new_list = aux
+            new_dict = dict(Counter(new_list))
+            blink_5_map_dict[n] = new_dict
+            return new_dict
+        
+
+        def blink_5n_times(numbers: dict[int, int], times: int) -> dict[int, int]:
+            cycles = int(times/5)
+            # num_list = []
+            for _ in range(cycles):
+                aux_dict = {}
+                for num, times in numbers.items():
+                    d = {k:v*times for k, v in blink_5_times(num).items()}
+                    for k, v in d.items():
+                        if k in aux_dict:
+                            aux_dict[k] += v
+                        else:
+                            aux_dict[k] = v
+                numbers = aux_dict
+
+            return numbers
+        
+        initial_numbers =[int(w) for w in data.split(" ")]
+        num_dict = dict(Counter(initial_numbers))
+        result = blink_5n_times(num_dict, 75)
+        total = sum([v for v in result.values()])
+        print(total)
+
+        
+
+# if __name__ == "__main__":
+#     day11 = Day11()
+#     day11.test_day11_part2_ver4()
