@@ -17,8 +17,9 @@ class Button:
 class Combination:
     def __init__(self, combo: List[Tuple[Button, int]]):
         self.combo = combo
+        self.cost = self._cost()
 
-    def cost(self) -> int:
+    def _cost(self) -> int:
         return sum([s[0].cost * s[1] for s in self.combo])
 
     def result(self, start_point: Tuple[int, int]) -> Tuple[int, int] :
@@ -39,13 +40,14 @@ class Machine:
         self.claw = (0, 0)
 
     def best_combination(self) -> int:  # outputs 0 if impossible
-        # make a list with all combinations
-        # order them by their cost
-        i, j = 0, 0
-        combo = Combination([(self.button_a, i), (self.button_b, j)])
-        if combo.result(self.claw) == self.prize_loc:
-            cost = combo.cost()
-        return 0
+        combos = [Combination([(self.button_a, i), (self.button_b, j)]) 
+                for i in range(1, 101) for j in range(1, 101)]
+        valid_combos = list(filter(lambda c: c.result(self.claw) == self.prize_loc, combos))
+        if valid_combos:
+            best_combo = sorted(valid_combos, key=lambda combo: combo.cost)[0]
+            return best_combo.cost
+        else: 
+            return 0
 
 
 def parse_data(data: str) -> List[Machine]:
@@ -65,7 +67,12 @@ class Day13(TestCase):
 
     def test_day13_part1(self):
         machines = parse_data(data)
+        total_token_cost = sum([machine.best_combination() for machine in machines])
+        print(f"total token cost: {total_token_cost}")
 
     def test_day13_part2(self):
         pass
 
+if __name__ == "__main__":
+    day13 = Day13()
+    day13.test_day13_part1()
