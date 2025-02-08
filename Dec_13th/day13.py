@@ -49,6 +49,24 @@ class Machine:
         else: 
             return 0
 
+class LinEq2by2:
+    """
+    a1 * x + b1 * y = p1}
+    a2 * x + b2 * y = p2}
+    """
+    def __init__(self, matrix: Tuple[Tuple[int, int], Tuple[int, int]], vector: Tuple[int, int]):
+        self.a1 = float(matrix[0][0])
+        self.b1 = float(matrix[0][1])
+        self.a2 = float(matrix[1][0])
+        self.b2 = float(matrix[1][1])
+
+        self.p1 = float(vector[0])
+        self.p2 = float(vector[1])
+    
+    def has_unique_solution(self) -> bool:
+        return not (self.a1*self.b2 + self.a2*self.b1) == 0
+
+
 
 def parse_data(data: str) -> List[Machine]:
     pattern = r'Button A: X([+-]?\d+), Y([+-]?\d+)\nButton B: X([+-]?\d+), Y([+-]?\d+)\nPrize: X=([+-]?\d+), Y=([+-]?\d+)'
@@ -71,7 +89,11 @@ class Day13(TestCase):
         print(f"total token cost: {total_token_cost}")
 
     def test_day13_part2(self):
-        pass
+        machines = parse_data(data)
+        for m in machines: # offset prize location
+            m.prize_loc = (m.prize_loc[0] + 10000000000000, m.prize_loc[1] + 10000000000000)
+
+        
 
 if __name__ == "__main__":
     day13 = Day13()
